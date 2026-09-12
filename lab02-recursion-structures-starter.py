@@ -161,19 +161,26 @@ class Stack:
         return len(self._data)
 
     def push(self, value) -> None:
-        """Положить элемент на вершину. Амортизированная сложность: TODO."""
-        # TODO: делегировать DynamicArray.append
-        raise NotImplementedError
+        """Положить элемент на вершину. Амортизированная сложность: O(1)."""
+        self._data.append(value)
 
     def pop(self):
         """Снять элемент с вершины; для пустого стека — IndexError."""
-        # TODO: прочитать последний элемент, уменьшить размер
-        raise NotImplementedError
+        if len(self._data) == 0:
+            raise IndexError("pop from empty stack")
+
+        index = len(self._data) - 1
+        value = self._data.get(index)
+        self._data._size -= 1
+
+        return value
 
     def peek(self):
         """Вернуть вершину без удаления; для пустого стека — IndexError."""
-        # TODO
-        raise NotImplementedError
+        if len(self._data) == 0:
+            raise IndexError("peek from empty stack")
+
+        return self._data.get(len(self._data) - 1)
 
 
 class _Node:
@@ -203,24 +210,60 @@ class Deque:
         return self._size
 
     def push_front(self, value) -> None:
-        """Добавить элемент в начало. Сложность: TODO."""
-        # TODO: создать узел, перевязать ссылки head (учесть пустой дек)
-        raise NotImplementedError
+        """Добавить элемент в начало. Сложность: O(1)."""
+        new_node = _Node(value, None, self._head)
+
+        if self._head is None:
+            self._head = self._tail = new_node
+        else:
+            self._head.prev = new_node
+            self._head = new_node
+
+        self._size += 1
 
     def push_back(self, value) -> None:
-        """Добавить элемент в конец. Сложность: TODO."""
-        # TODO: симметрично push_front для tail
-        raise NotImplementedError
+        """Добавить элемент в конец. Сложность: O(1)."""
+        new_node = _Node(value, self._tail, None)
+
+        if self._tail is None:
+            self._head = self._tail = new_node
+        else:
+            self._tail.next = new_node
+            self._tail = new_node
+
+        self._size += 1
 
     def pop_front(self):
         """Извлечь элемент из начала; для пустого дека — IndexError."""
-        # TODO: учесть переход к пустому деку (tail тоже обнуляется)
-        raise NotImplementedError
+        if self._head is None:
+            raise IndexError("pop from empty deque")
+
+        value = self._head.value
+        self._head = self._head.next
+
+        if self._head is None:
+            self._tail = None
+        else:
+            self._head.prev = None
+
+        self._size -= 1
+        return value
 
     def pop_back(self):
         """Извлечь элемент из конца; для пустого дека — IndexError."""
-        # TODO
-        raise NotImplementedError
+        if self._tail is None:
+            raise IndexError("pop from empty deque")
+
+        value = self._tail.value
+        self._tail = self._tail.prev
+
+        if self._tail is None:
+            self._head = None
+        else:
+            self._tail.next = None
+
+        self._size -= 1
+        return value
 
 
 # ---------------------------------------------------------------------------
