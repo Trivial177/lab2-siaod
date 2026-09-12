@@ -111,26 +111,39 @@ class DynamicArray:
 
     def _grow(self) -> None:
         """Увеличить ёмкость в 2 раза и скопировать элементы в новый буфер."""
-        # TODO: выделить новый буфер размера 2 * capacity, перенести _size элементов
-        raise NotImplementedError
+        new_capacity = self._capacity * 2
+        new_buffer = [None] * new_capacity
+
+        for i in range(self._size):
+            new_buffer[i] = self._buffer[i]
+
+        self._buffer = new_buffer
+        self._capacity = new_capacity
 
     def append(self, value) -> None:
         """Добавить элемент в конец; при size == capacity сначала вызвать _grow.
 
-        Амортизированная сложность: TODO (обосновать методом учёта в отчёте).
+        Амортизированная сложность: O(1) (обосновать методом учёта в отчёте).
         """
-        # TODO: рост при необходимости, запись в ячейку _buffer[_size], инкремент _size
-        raise NotImplementedError
+        if self._size == self._capacity:
+            self._grow()
+
+        self._buffer[self._size] = value
+        self._size += 1
 
     def get(self, index: int):
         """Вернуть элемент по индексу 0 <= index < size; иначе IndexError."""
-        # TODO: проверка границ + чтение из буфера
-        raise NotImplementedError
+        if index < 0 or index >= self._size:
+            raise IndexError("index out of range")
+
+        return self._buffer[index]
 
     def set(self, index: int, value) -> None:
         """Записать элемент по индексу 0 <= index < size; иначе IndexError."""
-        # TODO: проверка границ + запись в буфер
-        raise NotImplementedError
+        if index < 0 or index >= self._size:
+            raise IndexError("index out of range")
+
+        self._buffer[index] = value
 
 
 # ---------------------------------------------------------------------------
