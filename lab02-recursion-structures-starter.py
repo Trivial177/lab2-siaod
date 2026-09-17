@@ -66,21 +66,28 @@ def fib_memo(n: int, memo: dict[int, int] | None = None) -> int:
     return memo[n]
 
 
-def hanoi(n: int, src: str = "A", dst: str = "C", aux: str = "B") -> int:
-    """Ханойские башни: вернуть число перемещений n дисков (src -> dst).
+def hanoi(
+    n: int,
+    src: str = "A",
+    dst: str = "C",
+    aux: str = "B",
+    moves: list[tuple[str, str]] | None = None,
+) -> int:
+    """Ханойские башни: подсчёт и запись перемещений."""
 
-    Проверка в self_check: число перемещений равно 2**n - 1.
-    """
-    # Базовое условие n == 0; иначе перенести n-1 на aux, 1 на dst, n-1 на dst
     if n == 0:
         return 0
 
-    moves = hanoi(n - 1, src, aux, dst)
-    moves += 1
-    moves += hanoi(n - 1, aux, dst, src)
+    count = hanoi(n - 1, src, aux, dst, moves)
 
-    return moves
+    if moves is not None:
+        moves.append((src, dst))
 
+    count += 1
+
+    count += hanoi(n - 1, aux, dst, src, moves)
+
+    return count
 
 # ---------------------------------------------------------------------------
 # 2. Динамический массив с ручным управлением ёмкостью (рост x2)
@@ -101,6 +108,7 @@ class DynamicArray:
         self._capacity = self.INITIAL_CAPACITY
         self._size = 0
         self._buffer: list = [None] * self._capacity  # «сырая» память
+        self.copies = 0
 
     def __len__(self) -> int:
         return self._size
@@ -116,6 +124,7 @@ class DynamicArray:
 
         for i in range(self._size):
             new_buffer[i] = self._buffer[i]
+            self.copies += 1
 
         self._buffer = new_buffer
         self._capacity = new_capacity
@@ -130,6 +139,17 @@ class DynamicArray:
 
         self._buffer[self._size] = value
         self._size += 1
+
+    def pop(self):
+        if self._size == 0:
+            raise IndexError("pop from empty DynamicArray")
+
+        index = self._size - 1
+        value = self._buffer[index]
+        self._buffer[index] = None
+        self._size -= 1
+
+        return value
 
     def get(self, index: int):
         """Вернуть элемент по индексу 0 <= index < size; иначе IndexError."""
@@ -165,15 +185,10 @@ class Stack:
         self._data.append(value)
 
     def pop(self):
-        """Снять элемент с вершины; для пустого стека — IndexError."""
         if len(self._data) == 0:
             raise IndexError("pop from empty stack")
 
-        index = len(self._data) - 1
-        value = self._data.get(index)
-        self._data._size -= 1
-
-        return value
+        return self._data.pop()
 
     def peek(self):
         """Вернуть вершину без удаления; для пустого стека — IndexError."""
